@@ -9,7 +9,7 @@ import (
 func (s *Server) show(w http.ResponseWriter, r *http.Request) {
 	relative := string(s.getPageName(r))
 
-	bin, err := ioutil.ReadFile(filepath.Join(s.basePath, relative))
+	bin, err := ioutil.ReadFile(filepath.Join(s.basePath, relative+".md"))
 	text := bin
 	if err != nil || len(bin) == 0 {
 		text = emptyPageText
