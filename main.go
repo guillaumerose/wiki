@@ -27,28 +27,20 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/peterhellberg/wiki/db"
 	"github.com/peterhellberg/wiki/server"
 )
 
-var dbFile string
+var basePath string
 
 func main() {
-	flag.StringVar(&dbFile, "db", "/tmp/wiki.db", "Path to the BoltDB file")
+	flag.StringVar(&basePath, "files", "/tmp/", "Path to wiki files")
 
 	flag.Parse()
 
 	// Setup the logger used by the server
 	logger := log.New(os.Stdout, "", 0)
 
-	// Setup the database used by the server
-	db, err := newDB(dbFile)
-	if err != nil {
-		logger.Fatal(err)
-	}
-	defer db.Close()
-
-	hs := setup(logger, db)
+	hs := setup(logger, basePath)
 
 	go graceful(hs, 8*time.Second)
 
@@ -58,20 +50,10 @@ func main() {
 	}
 }
 
-func newDB(fn string) (*db.DB, error) {
-	db := &db.DB{}
-
-	if err := db.Open(dbFile, 0600); err != nil {
-		return nil, err
-	}
-
-	return db, nil
-}
-
-func setup(logger *log.Logger, db *db.DB) *http.Server {
+func setup(logger *log.Logger, basePath string) *http.Server {
 	return &http.Server{
 		Addr:         addr(),
-		Handler:      server.New(logger, db),
+		Handler:      server.New(logger, basePath),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 		IdleTimeout:  2 * time.Minute,

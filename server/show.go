@@ -1,23 +1,23 @@
 package server
 
 import (
+	"io/ioutil"
 	"net/http"
-
-	"github.com/peterhellberg/wiki/db"
+	"path/filepath"
 )
 
 func (s *Server) show(w http.ResponseWriter, r *http.Request) {
-	s.db.View(func(tx *db.Tx) error {
-		p, err := tx.Page(s.getPageName(r))
+	relative := string(s.getPageName(r))
 
-		if err != nil || len(p.Text) == 0 {
-			p.Text = emptyPageText
-		}
+	bin, err := ioutil.ReadFile(filepath.Join(s.basePath, relative))
+	text := bin
+	if err != nil || len(bin) == 0 {
+		text = emptyPageText
+	}
 
-		return show.Execute(w, data{
-			"Title": string(p.Name),
-			"Path":  "/" + string(p.Name) + "/edit",
-			"Text":  bytesAsHTML(parsedMarkdown(p.Text)),
-		})
+	show.Execute(w, data{
+		"Title": relative,
+		"Path":  "/" + relative + "/edit",
+		"Text":  bytesAsHTML(parsedMarkdown(text)),
 	})
 }

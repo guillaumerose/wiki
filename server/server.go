@@ -6,19 +6,18 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/peterhellberg/wiki/db"
 	"github.com/russross/blackfriday"
 )
 
 // Server is the wiki server
 type Server struct {
-	logger *log.Logger
-	db     *db.DB
+	basePath string
+	logger   *log.Logger
 }
 
 // New creates a new wiki server
-func New(logger *log.Logger, db *db.DB) *Server {
-	return &Server{logger: logger, db: db}
+func New(logger *log.Logger, basePath string) *Server {
+	return &Server{logger: logger, basePath: basePath}
 }
 
 func (s *Server) redirect(w http.ResponseWriter, r *http.Request) {

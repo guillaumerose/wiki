@@ -1,25 +1,17 @@
 package server
 
 import (
+	"io/ioutil"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
-
-	"github.com/peterhellberg/wiki/db"
 )
 
 func (s *Server) save(w http.ResponseWriter, r *http.Request) {
-	s.db.Update(func(tx *db.Tx) error {
-		r.ParseForm()
-
-		p := db.Page{
-			Tx:   tx,
-			Name: s.getPageName(r),
-		}
-
-		p.Text = []byte(strings.TrimSpace(r.FormValue("text")))
-
-		return p.Save()
-	})
-
+	relative := string(s.getPageName(r))
+	absolute := filepath.Join(s.basePath, relative)
+	os.MkdirAll(filepath.Dir(absolute), 0755)
+	ioutil.WriteFile(absolute, []byte(strings.TrimSpace(r.FormValue("text"))), 0644)
 	s.redirect(w, r)
 }

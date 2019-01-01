@@ -1,19 +1,17 @@
 package server
 
 import (
+	"io/ioutil"
 	"net/http"
-
-	"github.com/peterhellberg/wiki/db"
+	"path/filepath"
 )
 
 func (s *Server) edit(w http.ResponseWriter, r *http.Request) {
-	s.db.View(func(tx *db.Tx) error {
-		p, _ := tx.Page(s.getPageName(r))
-
-		return edit.Execute(w, data{
-			"Title": string(p.Name),
-			"Path":  "/" + string(p.Name),
-			"Text":  string(p.Text),
-		})
+	relative := string(s.getPageName(r))
+	bin, _ := ioutil.ReadFile(filepath.Join(s.basePath, relative))
+	edit.Execute(w, data{
+		"Title": relative,
+		"Path":  "/" + relative,
+		"Text":  string(bin),
 	})
 }
