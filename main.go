@@ -44,7 +44,7 @@ func main() {
 
 	go graceful(hs, 8*time.Second)
 
-	logger.Println("Listening on http://0.0.0.0" + hs.Addr)
+	logger.Println("Listening on http://" + hs.Addr)
 	if err := hs.ListenAndServe(); err != nil {
 		logger.Fatal(err)
 	}
@@ -62,10 +62,10 @@ func setup(logger *log.Logger, basePath string) *http.Server {
 
 func addr() string {
 	if port := os.Getenv("PORT"); port != "" {
-		return ":" + port
+		return "127.0.0.1:" + port
 	}
 
-	return ":7272"
+	return "127.0.0.1:7272"
 }
 
 func graceful(hs *http.Server, timeout time.Duration) {
