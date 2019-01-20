@@ -18,7 +18,15 @@ var show = template.Must(template.New("show").Parse(`<!DOCTYPE html>
 		<form action="{{.Path}}" method="GET">
     	<button type="submit">Edit</button>
 		</form>
-		<article>{{.Text}}</article>
+		<article>
+			{{.Text}}
+			<h5>Navigation</h5>
+			<ul>
+			{{range .Files}}
+     			<li><a href="/{{.}}">{{.}}</a></li>
+			{{end}}
+			</ul>
+		</article>
 	</body>
 </html>`))
 
